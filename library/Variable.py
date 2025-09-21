@@ -4,11 +4,11 @@ import math
 
 @dataclass
 class Angle:
-    p = 0
-    q = 0
-    r = 0
-    s = 0
-    t = 0
+    p: float = 0
+    q: float = 0
+    r: float = 0
+    s: float = 0
+    t: float = 0
     
     def to_radians(self):
         """Converts all non-zero angles in-place from degrees to radians."""
@@ -20,11 +20,11 @@ class Angle:
 
 @dataclass
 class Amplitude:
-    p = 0
-    q = 0
-    r = 0
-    s = 0
-    t = 0   
+    p: float = 0
+    q: float = 0
+    r: float = 0
+    s: float = 0
+    t: float = 0   
     
     def scale_by(self, factor):
         """Multiplies all numeric attributes by a given factor."""
@@ -35,4 +35,3 @@ class Amplitude:
             if isinstance(current_value, (int, float)):
                 # Update the value
                 setattr(self, field.name, current_value * factor)
-        

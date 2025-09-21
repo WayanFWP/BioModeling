@@ -15,3 +15,41 @@ def sideBySide(one, two):
 
     plt.tight_layout()
     plt.show()
+    
+def plotFour(one, two, three, four):
+    plt.figure(figsize=(12, 10))
+
+    plt.subplot(2, 2, 1)
+    plt.plot(one)
+    plt.title('Plot 1')
+    plt.grid(True)
+
+    plt.subplot(2, 2, 2)
+    plt.plot(two)
+    plt.title('Plot 2')
+    plt.grid(True)
+
+    plt.subplot(2, 2, 3)
+    plt.plot(three)
+    plt.title('Plot 3')
+    plt.grid(True)
+
+    plt.subplot(2, 2, 4)
+    plt.plot(four)
+    plt.title('Plot 4')
+    plt.grid(True)
+
+    plt.tight_layout()
+    plt.show()
+
+def plotTwo(one, two):
+    plt.figure(figsize=(12, 8))
+    
+    plt.plot(one, label='Plot 1')
+    plt.plot(two, label='Plot 2')
+    
+    plt.title('Combined Plot')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()

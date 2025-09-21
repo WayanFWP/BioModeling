@@ -1,9 +1,10 @@
 from math import exp, sqrt
 import numpy
+import math
 import random
 
 class Function:
-    def loop_gausian(Nrr, f1, f2, c1, c2):
+    def gaussianLoop(Nrr, f1, f2, c1, c2):
         S = [0 for _ in range(Nrr)]
         S1 = [0 for _ in range(Nrr)]
         S2 = [0 for _ in range(Nrr)]
@@ -21,22 +22,29 @@ class Function:
         for i in range(Nrr):
             S[i] = sqrt(S[i]) 
         return S
+    
+    def randomPhase(S, N):
+        real = [0 for _ in range(N)]
+        imag = [0 for _ in range(N)]
+        for n in range(N):
+            real[n] = S[n] * math.cos(2 * math.pi * random.random())
+            imag[n] = S[n] * math.sin(2 * math.pi * random.random())
+        return real, imag
 
-    def idft(S):
-        real = [0 for _ in range(len(S))]
-        imag = [0 for _ in range(len(S))]
-        N = len(S)
+    def idft(re, im, N):
+        real = [0 for _ in range(len(re))]
+        imag = [0 for _ in range(len(im))]
         for n in range(N):
             for k in range(N):
-                real[n] += S[k] * numpy.cos(2 * numpy.pi * random.random())
-                imag[n] += S[k] * numpy.sin(2 * numpy.pi * random.random())
+                real[n] += re[k] * math.cos(2 * math.pi * k * n / N)
+                imag[n] += im[k] * math.sin(2 * math.pi * k * n / N)
             real[n] /= N
             imag[n] /= N
         return real, imag
 
     def scaling(s, hmean):
         for i in range(len(s)):
-            s[i] = s[i] + hmean
+            s[i] = s[i] + (hmean / 60)
         return s
     
     def doubleFactorial(hr):
