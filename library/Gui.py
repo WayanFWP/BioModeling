@@ -1,5 +1,15 @@
 import matplotlib.pyplot as plt
 
+def singlePlot(data, title='Plot', xlabel='X-axis', ylabel='Y-axis'):
+    plt.figure(figsize=(10, 5))
+    plt.plot(data)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
 def sideBySide(one, two):
     plt.figure(figsize=(12, 5))
 
@@ -53,3 +63,4 @@ def plotTwo(one, two):
     plt.grid(True)
     plt.tight_layout()
     plt.show()
+
