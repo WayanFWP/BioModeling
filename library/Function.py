@@ -34,7 +34,14 @@ class Function:
             imag[n] /= N
         return real, imag
 
-    def scaling(s):
+    def scaling(s, hmean):
         for i in range(len(s)):
-            s[i] = s[i] + 1
+            s[i] = s[i] + hmean
         return s
+    
+    def doubleFactorial(hr):
+        if hr <= 0:
+            return 1
+        else:
+            hrfactorial = sqrt(hr/60)
+            return sqrt(hrfactorial), hrfactorial
