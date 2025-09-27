@@ -1,4 +1,3 @@
-import numpy
 import math
 import random
 
@@ -58,7 +57,7 @@ class Function:
         z_sum = 0
         for i in range(len(ai)):
             # delta_theta = (theta - theta_i) mod 2*pi
-            delta_theta = (theta - ti[i]) % (2 * math.pi)
+            delta_theta = ((theta - ti[i] + math.pi) % (2 * math.pi)) - math.pi
             z_sum += ai[i] * delta_theta * math.exp(-0.5 * delta_theta**2 / bi[i]**2)
 
         f_resp = 0.3  # Frequency of the respiratory component in Hz
