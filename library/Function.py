@@ -1,25 +1,25 @@
+import numpy as np
 import math
 import random
 
 class Function:
     def gaussianLoop(Nrr, f1, f2, c1, c2):
-        S = [0 for _ in range(Nrr)]
-        S1 = [0 for _ in range(Nrr)]
-        S2 = [0 for _ in range(Nrr)]
         magSf = 1.7 / Nrr
         
-        for i in range(1, int(Nrr / 2)):
-            f = i * (1 / Nrr)
-            S1[i] = magSf * math.exp(-((f - f1) ** 2 / (2 * c1 ** 2))) / math.sqrt(2 * math.pi * c1 ** 2)
-            S2[i] = 2 * magSf * math.exp(-((f - f2) ** 2 / (2 * c2 ** 2))) / math.sqrt(2 * math.pi * c2 ** 2)
-            S[i] = (S1[i] + S2[i])
+        i_vals = np.arange(1, Nrr//2)
+        f = i_vals / Nrr
+        
+        S1 = magSf * np.exp(-((f - f1) ** 2 / (2 * c1 ** 2))) / np.sqrt(2 * np.pi * c1 ** 2)
+        S2 = 2 * magSf * np.exp(-((f - f2) ** 2 / (2 * c2 ** 2))) / np.sqrt(2 * np.pi * c2 ** 2)
+        S_half = (S1 + S2)
+        
+        S = np.zeros(Nrr)
+        S[1:Nrr//2] = S_half
+        S[Nrr//2+1:] = S[1:Nrr//2][::-1]  # Mirror the first half to the second half
+        
+        S = np.sqrt(S)
             
-        for i in range(int(Nrr / 2), Nrr):
-            S[i] = S[Nrr - i]
-
-        for i in range(Nrr):
-            S[i] = math.sqrt(S[i]) 
-        return S
+        return S.tolist()
     
     def randomPhase(S, N):
         real = [0 for _ in range(N)]
@@ -57,7 +57,8 @@ class Function:
         z_sum = 0
         for i in range(len(ai)):
             # delta_theta = (theta - theta_i) mod 2*pi
-            delta_theta = ((theta - ti[i] + math.pi) % (2 * math.pi)) - math.pi
+            delta_theta = (theta - ti[i]) % (2 * math.pi)
+            delta_theta = (delta_theta + math.pi) % (2 * math.pi) - math.pi  # Shift to [-pi, pi]
             z_sum += ai[i] * delta_theta * math.exp(-0.5 * delta_theta**2 / bi[i]**2)
 
         f_resp = 0.3  # Frequency of the respiratory component in Hz

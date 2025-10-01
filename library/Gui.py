@@ -26,7 +26,7 @@ def sideBySide(one, two):
     plt.tight_layout()
     plt.show()
     
-def plotFour(one, two, three, four):
+def plot4Row(one, two, three, four):
     plt.figure(figsize=(12, 10))
 
     plt.subplot(2, 2, 1)
@@ -52,7 +52,7 @@ def plotFour(one, two, three, four):
     plt.tight_layout()
     plt.show()
 
-def plotTwo(one, two):
+def combine2Plot(one, two):
     plt.figure(figsize=(12, 8))
     
     plt.plot(one, label='Plot 1')
