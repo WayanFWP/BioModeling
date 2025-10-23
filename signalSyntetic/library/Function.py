@@ -37,15 +37,17 @@ class Function:
         real = np.zeros(N)
         imag = np.zeros(N)
         
-        for n in range(N):
-            for k in range(N):
-                angle = 2 * np.pi * k * n / N
-                real[n] += re[k] * np.cos(angle) - im[k] * np.sin(angle)
-                imag[n] += re[k] * np.sin(angle) + im[k] * np.cos(angle)
-            real[n] /= N
-            imag[n] /= N
+        # for n in range(N):
+        #     for k in range(N):
+        #         angle = 2 * np.pi * k * n / N
+        #         real[n] += re[k] * np.cos(angle) - im[k] * np.sin(angle)
+        #         imag[n] += re[k] * np.sin(angle) + im[k] * np.cos(angle)
+        #     real[n] /= N
+        #     imag[n] /= N
         
-        return real.tolist(), imag.tolist()
+        # return real, imag
+        result = np.fft.ifft(np.array(re) + 1j * np.array(im)) * N
+        return result.real.tolist(), result.imag.tolist()
     
     @staticmethod
     def derivative(t, x, y, z, params):
@@ -210,3 +212,28 @@ class Utility:
         diff = np.diff(rr_array)
         pnn50 = np.sum(np.abs(diff) > 50.0) / len(diff) * 100.0  # 50ms threshold
         return pnn50
+    
+    
+def generate(f1, f2, c1, c2, duration, hmean, fs):  # Add verbose flag
+    """Optimized generate function"""
+    Nrr = int(duration * fs)
+    print(f"Nrr: {Nrr}")
+    
+    # Pre-compute base spectrum once
+    Sw_base = Function.gaussianLoop(Nrr, f1, f2, c1, c2)
+
+    # Use optimized functions
+    real_0, imag_0 = Function.randomPhase(Sw_base, Nrr)
+    real, imag = Function.idft(real_0, imag_0, Nrr)
+    
+    # Combine operations
+    S = (real + imag) * 2
+
+    rr_intervals = Utility.scaling(S, hmean)
+
+    metrics = {
+        'SDNN': Utility.SDNN(rr_intervals),
+        'RMSSD': Utility.RMSSD(rr_intervals), 
+        'pNN50': Utility.pNN50(rr_intervals)
+    }
+    return rr_intervals, metrics
