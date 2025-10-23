@@ -1,5 +1,6 @@
 import numpy as np
 import random
+from Gui import *
 
 class Function:
     @staticmethod
@@ -34,8 +35,8 @@ class Function:
 
     @staticmethod
     def idft(re, im, N):
-        real = np.zeros(N)
-        imag = np.zeros(N)
+        # real = np.zeros(N)
+        # imag = np.zeros(N)
         
         # for n in range(N):
         #     for k in range(N):
@@ -140,16 +141,19 @@ class Function:
 
 class Utility:
     @staticmethod
-    def scaling(s, hmean):
-        """Scale RR intervals to have correct mean heart rate"""
+    def scaling(s, hmean, hstd=1):
+        """Scale RR intervals to have correct mean heart rate and standard deviation"""
         s = np.array(s)
-        s_mean = np.mean(s)
         
-        # Convert to RR intervals in seconds
-        rr_intervals = (s - s_mean) * 0.1 + (60.0 / hmean)  # Base RR + variation
+        # Convert heart rate std to RR interval std
+        rr_mean = 60.0 / hmean
+        rr_std = (60.0 * hstd) / (hmean ** 2)  # Approximate conversion
         
-        # Ensure positive values
-        rr_intervals = np.maximum(rr_intervals, 0.4)  # Minimum RR = 0.4s (150 BPM max)
+        # Scale and shift to desired statistics
+        rr_intervals = s * rr_std + rr_mean
+        
+        # Ensure positive values (minimum RR = 0.3s for safety)
+        rr_intervals = np.maximum(rr_intervals, 0.3)
         
         return rr_intervals.tolist()
     
@@ -214,22 +218,25 @@ class Utility:
         return pnn50
     
     
-def generate(f1, f2, c1, c2, duration, hmean, fs):  # Add verbose flag
+def generate(f1, f2, c1, c2, duration, hmean, fs, hstd=None):  # Add verbose flag
     """Optimized generate function"""
     Nrr = int(duration * fs)
     print(f"Nrr: {Nrr}")
     
     # Pre-compute base spectrum once
-    Sw_base = Function.gaussianLoop(Nrr, f1, f2, c1, c2)
+    Sw_base, _ = Function.gaussianLoop(Nrr, f1, f2, c1, c2)
+    singlePlot(Sw_base, title='Base Power Spectrum', xlabel='Frequency Bin', ylabel='Magnitude')
 
     # Use optimized functions
     real_0, imag_0 = Function.randomPhase(Sw_base, Nrr)
+    combine2Plot(real_0, imag_0, title='Random Phase Components', label1='Real Part', label2='Imaginary Part')
     real, imag = Function.idft(real_0, imag_0, Nrr)
     
     # Combine operations
     S = (real + imag) * 2
 
-    rr_intervals = Utility.scaling(S, hmean)
+    rr_intervals = Utility.scaling(S, hmean, hstd)
+    singlePlot(rr_intervals, title='Generated RR Intervals', xlabel='Beat Index', ylabel='RR Interval (s)')
 
     metrics = {
         'SDNN': Utility.SDNN(rr_intervals),
