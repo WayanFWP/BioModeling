@@ -1,5 +1,5 @@
 import streamlit as st
-from library.Gui import *
+from library.Plot import *
 from library.Function import *
 from library.Variable import *
 wider_layout = True

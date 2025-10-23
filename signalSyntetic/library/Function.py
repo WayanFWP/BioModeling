@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from Gui import *
+from library.Plot import *
 
 class Function:
     @staticmethod

@@ -1,5 +1,5 @@
 from library.Function import *
-from library.Gui import *
+from library.Plot import *
 from library.Variable import *
 
 # step 1
