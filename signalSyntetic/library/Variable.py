@@ -1,4 +1,3 @@
-import numpy as np
 from dataclasses import dataclass, fields
 import math
 
@@ -15,7 +14,6 @@ class Angle:
         for field in fields(self):
             value = getattr(self, field.name)
             if value != 0:
-                # math.radians() is a handy function for this conversion
                 setattr(self, field.name, math.radians(value))
 
 @dataclass
