@@ -5,3 +5,6 @@ project_env
 *.bbl
 *.blg
 *.log
+build
+*.spec
+dist/
