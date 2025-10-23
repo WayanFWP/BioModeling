@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def singlePlot(time_or_data, data=None, title="", xlabel="", ylabel="", mode=None):
+def singlePlot(time_or_data, data=None, title="", xlabel="", ylabel="", mode=None, interactive=True):
     """
     Flexible plot function that works with both Streamlit and regular matplotlib
     
@@ -12,6 +12,7 @@ def singlePlot(time_or_data, data=None, title="", xlabel="", ylabel="", mode=Non
         xlabel: X-axis label
         ylabel: Y-axis label
         mode: 'streamlit' for Streamlit display, None for regular matplotlib
+        interactive: Enable zoom and pan functionality
     """
     if data is None:
         plot_data = time_or_data
@@ -30,16 +31,41 @@ def singlePlot(time_or_data, data=None, title="", xlabel="", ylabel="", mode=Non
     if mode == 'streamlit':
         try:
             import streamlit as st
-            st.pyplot(fig)
-        except ImportError:
-            print("Streamlit not available, falling back to regular display")
+            # Streamlit has built-in zoom with plotly
+            if interactive:
+                import plotly.graph_objects as go
+                fig_plotly = go.Figure()
+                fig_plotly.add_trace(go.Scatter(x=list(x_axis), y=list(plot_data), 
+                                              mode='lines', name='Signal',
+                                              line=dict(color='blue', width=1)))
+                fig_plotly.update_layout(
+                    title=title,
+                    xaxis_title=xlabel,
+                    yaxis_title=ylabel,
+                    showlegend=False,
+                    width=800,
+                    height=400
+                )
+                st.plotly_chart(fig_plotly, use_container_width=True)
+                plt.close(fig)  # Close matplotlib figure
+                return
+            else:
+                st.pyplot(fig)
+        except ImportError as e:
+            print(f"Streamlit or Plotly not available: {e}, falling back to matplotlib")
+            if interactive:
+                # Enable matplotlib zoom/pan toolbar
+                plt.subplots_adjust(bottom=0.15)  # Make room for toolbar
             plt.show()
     else:
+        if interactive:
+            # Enable matplotlib zoom/pan toolbar
+            plt.subplots_adjust(bottom=0.15)  # Make room for toolbar
         plt.show()
     
     plt.close(fig)  # Clean up memory
 
-def singlePlotWithTime(time_axis, data, title='Plot', xlabel='Time (s)', ylabel='Amplitude', mode=None):
+def singlePlotWithTime(time_axis, data, title='Plot', xlabel='Time (s)', ylabel='Amplitude', mode=None, interactive=True):
     """Plot data with proper time axis and enhanced formatting"""
     fig, ax = plt.subplots(figsize=(12, 6))
     ax.plot(time_axis, data, 'b-', linewidth=1)
@@ -63,16 +89,41 @@ def singlePlotWithTime(time_axis, data, title='Plot', xlabel='Time (s)', ylabel=
     if mode == 'streamlit':
         try:
             import streamlit as st
-            st.pyplot(fig)
-        except ImportError:
-            print("Streamlit not available, falling back to regular display")
+            # Use plotly for interactive zoom in streamlit
+            if interactive:
+                import plotly.graph_objects as go
+                fig_plotly = go.Figure()
+                fig_plotly.add_trace(go.Scatter(x=list(time_axis), y=list(data), 
+                                              mode='lines', name='Signal',
+                                              line=dict(color='blue', width=1)))
+                fig_plotly.update_layout(
+                    title=title,
+                    xaxis_title=xlabel,
+                    yaxis_title=ylabel,
+                    showlegend=False,
+                    width=1000,
+                    height=500,
+                    xaxis=dict(showgrid=True, gridwidth=1, gridcolor='lightgray'),
+                    yaxis=dict(showgrid=True, gridwidth=1, gridcolor='lightgray')
+                )
+                st.plotly_chart(fig_plotly, use_container_width=True)
+                plt.close(fig)  # Close matplotlib figure
+                return
+            else:
+                st.pyplot(fig)
+        except ImportError as e:
+            print(f"Streamlit or Plotly not available: {e}, falling back to matplotlib")
+            if interactive:
+                plt.subplots_adjust(bottom=0.15)  # Make room for toolbar
             plt.show()
     else:
+        if interactive:
+            plt.subplots_adjust(bottom=0.15)  # Make room for toolbar
         plt.show()
     
     plt.close(fig)  # Clean up memory
 
-def sideBySide(one, two, mode=None):
+def sideBySide(one, two, mode=None, interactive=True):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
     ax1.plot(one)
@@ -83,21 +134,35 @@ def sideBySide(one, two, mode=None):
     ax2.set_title('S')
     ax2.grid(True)
 
+    if interactive:
+        plt.subplots_adjust(bottom=0.15)  # Make room for toolbar
     plt.tight_layout()
     
     if mode == 'streamlit':
         try:
             import streamlit as st
-            st.pyplot(fig)
+            if interactive:
+                import plotly.graph_objects as go
+                from plotly.subplots import make_subplots
+                
+                fig_plotly = make_subplots(rows=1, cols=2, subplot_titles=('S_f', 'S'))
+                fig_plotly.add_trace(go.Scatter(y=list(one), mode='lines', name='S_f'), row=1, col=1)
+                fig_plotly.add_trace(go.Scatter(y=list(two), mode='lines', name='S'), row=1, col=2)
+                fig_plotly.update_layout(showlegend=False, width=1000, height=400)
+                st.plotly_chart(fig_plotly, use_container_width=True)
+                plt.close(fig)
+                return
+            else:
+                st.pyplot(fig)
         except ImportError:
-            print("Streamlit not available, falling back to regular display")
+            print("Streamlit or Plotly not available, falling back to matplotlib")
             plt.show()
     else:
         plt.show()
     
     plt.close(fig)
 
-def plot4Row(one, two, three, four, mode=None):
+def plot4Row(one, two, three, four, mode=None, interactive=True):
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(12, 10))
 
     ax1.plot(one)
@@ -116,39 +181,76 @@ def plot4Row(one, two, three, four, mode=None):
     ax4.set_title('Plot 4')
     ax4.grid(True)
 
+    if interactive:
+        plt.subplots_adjust(bottom=0.1)
     plt.tight_layout()
     
     if mode == 'streamlit':
         try:
             import streamlit as st
-            st.pyplot(fig)
+            if interactive:
+                import plotly.graph_objects as go
+                from plotly.subplots import make_subplots
+                
+                fig_plotly = make_subplots(rows=2, cols=2, 
+                                         subplot_titles=('Plot 1', 'Plot 2', 'Plot 3', 'Plot 4'))
+                fig_plotly.add_trace(go.Scatter(y=list(one), mode='lines', name='Plot 1'), row=1, col=1)
+                fig_plotly.add_trace(go.Scatter(y=list(two), mode='lines', name='Plot 2'), row=1, col=2)
+                fig_plotly.add_trace(go.Scatter(y=list(three), mode='lines', name='Plot 3'), row=2, col=1)
+                fig_plotly.add_trace(go.Scatter(y=list(four), mode='lines', name='Plot 4'), row=2, col=2)
+                fig_plotly.update_layout(showlegend=False, width=1000, height=600)
+                st.plotly_chart(fig_plotly, use_container_width=True)
+                plt.close(fig)
+                return
+            else:
+                st.pyplot(fig)
         except ImportError:
-            print("Streamlit not available, falling back to regular display")
+            print("Streamlit or Plotly not available, falling back to matplotlib")
             plt.show()
     else:
         plt.show()
     
     plt.close(fig)
 
-def combine2Plot(one, two, mode=None):
+def combine2Plot(one, two, label='Plot 1', label2='Plot 2', mode=None, interactive=True):
     fig, ax = plt.subplots(figsize=(12, 8))
-    
-    ax.plot(one, label='Plot 1')
-    ax.plot(two, label='Plot 2')
-    
+
+    ax.plot(one, label=label)
+    ax.plot(two, label=label2)
+
     ax.set_title('Combined Plot')
     ax.legend()
     ax.grid(True)
+    
+    if interactive:
+        plt.subplots_adjust(bottom=0.15)
     plt.tight_layout()
     
     if mode == 'streamlit':
         try:
             import streamlit as st
-            st.pyplot(fig)
+            if interactive:
+                import plotly.graph_objects as go
+                
+                fig_plotly = go.Figure()
+                fig_plotly.add_trace(go.Scatter(y=list(one), mode='lines', name=label))
+                fig_plotly.add_trace(go.Scatter(y=list(two), mode='lines', name=label2))
+                fig_plotly.update_layout(
+                    title='Combined Plot',
+                    width=1000,
+                    height=500,
+                    showlegend=True
+                )
+                st.plotly_chart(fig_plotly, use_container_width=True)
+                plt.close(fig)
+                return
+            else:
+                st.pyplot(fig)
         except ImportError:
-            print("Streamlit not available, falling back to regular display")
+            print("Streamlit or Plotly not available, falling back to matplotlib")
             plt.show()
     else:
         plt.show()
     
     plt.close(fig)
+    return ax

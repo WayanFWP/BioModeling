@@ -18,7 +18,7 @@ class Function:
         S[1:Nrr//2] = S_total
         S[Nrr//2+1:] = S[1:Nrr//2][::-1]
         
-        return np.sqrt(S)
+        return np.sqrt(S), np.sqrt(S_total)
     
     @staticmethod
     def randomPhase(S, N):

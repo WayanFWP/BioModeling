@@ -2,7 +2,8 @@ import streamlit as st
 from library.Gui import *
 from library.Function import *
 from library.Variable import *
-
+wider_layout = True
+st.set_page_config(layout="wide" if wider_layout else "centered")
 class App:
     def __init__(self):
         self.f1 = st.sidebar.number_input("f1 (Hz)", 0.01, 0.5, 0.1)
@@ -19,14 +20,18 @@ class App:
     
     def generate_rr_intervals(self):
         with st.spinner("Generating RR intervals..."):
-            Sw = Function.gaussianLoop(self.Nrr, self.f1, self.f2, self.c1, self.c2)
+            Sw, total = Function.gaussianLoop(self.Nrr, self.f1, self.f2, self.c1, self.c2)
             real_0, imag_0 = Function.randomPhase(Sw,self.Nrr)
             real, imag = Function.idft(real_0, imag_0, self.Nrr)
-            
+            col1 , col2 = st.columns(2)
             S = (real + imag) * 2
             rr_intervals = Utility.scaling(S, self.hmean)
-            singlePlot(Sw, title="RSA Mayer", xlabel="Sample Index", ylabel="RR Interval (s)", mode='streamlit')
-            singlePlot(rr_intervals, title="Generated RR Intervals", xlabel="Sample Index", ylabel="RR Interval (s)", mode='streamlit')
+            with col1:
+                singlePlot(total, title="Total Power Spectrum", xlabel="Sample Index", ylabel="RR Interval (s)", mode='streamlit')
+                combine2Plot(real_0, imag_0, label="real", label2="imag", mode='streamlit')
+            with col2:
+                singlePlot(Sw, title="RSA Mayer", xlabel="Sample Index", ylabel="RR Interval (s)", mode='streamlit')
+                singlePlot(rr_intervals, title="Generated RR Intervals", xlabel="Sample Index", ylabel="RR Interval (s)", mode='streamlit')
         return rr_intervals
     
     def HRV_metrics(self, rr_intervals):      
